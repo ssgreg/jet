@@ -11,9 +11,8 @@ import (
 // StackFunctions allows to specify the stop/exit order for the given functions
 // and the ability to cancel them with the single given context.
 // Notes:
-// - Each function starts with it's own goroutine.
+// - Each function starts in it's own goroutine.
 // - The given context cancels the last function (top of the stack).
-// - Each function st
 //
 func StackFunctions(ctx context.Context, jobs ...func(context.Context) error) (err error) {
 	topCtx, topCancel := context.WithCancel(ctx)
