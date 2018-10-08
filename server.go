@@ -11,6 +11,8 @@ import (
 
 // RunServer starts the server synchronously with the given context, server
 // and listener. The server can be gracefully shut down using the given context.
+//
+// RunServer returns nil in case of ErrServerClosed.
 func RunServer(ctx context.Context, s *http.Server, l net.Listener) (err error) {
 	var shutdownError error
 	defer func() {
@@ -20,6 +22,9 @@ func RunServer(ctx context.Context, s *http.Server, l net.Listener) (err error) 
 			} else {
 				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
 			}
+		}
+		if err == http.ErrServerClosed {
+			err = nil
 		}
 	}()
 

@@ -22,7 +22,7 @@ func Test_Shutdown(t *testing.T) {
 	}()
 
 	err = RunServer(context.Background(), &s, l)
-	require.Error(t, err, "http: Server closed")
+	require.NoError(t, err)
 }
 
 func Test_ShutdownWithContext(t *testing.T) {
@@ -37,5 +37,5 @@ func Test_ShutdownWithContext(t *testing.T) {
 
 	s := http.Server{}
 	err = RunServer(serverCtx, &s, l)
-	require.Error(t, err, "http: Server closed")
+	require.NoError(t, err)
 }
