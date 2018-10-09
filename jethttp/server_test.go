@@ -1,4 +1,4 @@
-package jet
+package jethttp
 
 import (
 	"context"
