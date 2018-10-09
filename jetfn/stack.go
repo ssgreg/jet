@@ -1,4 +1,4 @@
-package jet
+package jetfn
 
 import (
 	"context"
@@ -8,21 +8,21 @@ import (
 	"sync/atomic"
 )
 
-// StackFunctions allows to specify the stop/exit order for the given functions
+// Stack allows to specify the stop/exit order for the given functions
 // and the ability to cancel them with the single given context.
 // Notes:
 // - Each function starts in it's own goroutine.
 // - The given context cancels the last function (top of the stack).
 //
-func StackFunctions(ctx context.Context, jobs ...func(context.Context) error) (err error) {
+func Stack(ctx context.Context, jobs ...func(context.Context) error) (err error) {
 	topCtx, topCancel := context.WithCancel(ctx)
 
-	return stackFunctions(topCtx, topCancel, jobs...)
+	return stack(topCtx, topCancel, jobs...)
 }
 
-func stackFunctions(ctx context.Context, cancel context.CancelFunc, jobs ...func(context.Context) error) (err error) {
+func stack(ctx context.Context, cancel context.CancelFunc, jobs ...func(context.Context) error) (err error) {
 	if len(jobs) == 0 {
-		panic("stackFunctions called with empty jobs")
+		panic("stack called with empty jobs")
 	}
 
 	useInternalErrorFirst := false
@@ -64,7 +64,7 @@ func stackFunctions(ctx context.Context, cancel context.CancelFunc, jobs ...func
 			defer wg.Done()
 			defer externalCancel()
 			defer atomic.StoreUint32(&useInternalErrorIf, 1)
-			internalErr = stackFunctions(ctx, cancel, jobs[1:]...)
+			internalErr = stack(ctx, cancel, jobs[1:]...)
 		}()
 	}
 

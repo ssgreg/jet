@@ -1,4 +1,4 @@
-package jet
+package jetfn
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 
 func Test_SingleSuccess(t *testing.T) {
 	fired := false
-	err := StackFunctions(context.Background(), func(ctx context.Context) error {
+	err := Stack(context.Background(), func(ctx context.Context) error {
 		fired = true
 		return nil
 	})
@@ -20,7 +20,7 @@ func Test_SingleSuccess(t *testing.T) {
 }
 
 func Test_SingleError(t *testing.T) {
-	err := StackFunctions(context.Background(), func(ctx context.Context) error {
+	err := Stack(context.Background(), func(ctx context.Context) error {
 		return errors.New("single_error")
 	})
 	require.EqualError(t, err, "single_error")
@@ -33,7 +33,7 @@ func Test_SingleCancel(t *testing.T) {
 		cancel()
 	}()
 	now := time.Now()
-	err := StackFunctions(ctx, func(ctx context.Context) error {
+	err := Stack(ctx, func(ctx context.Context) error {
 		<-ctx.Done()
 		return nil
 	})
@@ -44,7 +44,7 @@ func Test_SingleCancel(t *testing.T) {
 func Test_DoubleBothSuccess(t *testing.T) {
 	fired1 := false
 	fired2 := false
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			fired1 = true
 			return nil
@@ -61,7 +61,7 @@ func Test_DoubleBothSuccess(t *testing.T) {
 
 func Test_DoubleFirstError(t *testing.T) {
 	fired2 := false
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			return errors.New("double_first_error")
 		},
@@ -76,7 +76,7 @@ func Test_DoubleFirstError(t *testing.T) {
 
 func Test_DoubleSecondError(t *testing.T) {
 	fired1 := false
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			fired1 = true
 			return nil
@@ -90,7 +90,7 @@ func Test_DoubleSecondError(t *testing.T) {
 }
 
 func Test_DoubleBothErrors_GotSecond(t *testing.T) {
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			time.Sleep(time.Millisecond * 100)
 			return errors.New("double_first_error")
@@ -103,7 +103,7 @@ func Test_DoubleBothErrors_GotSecond(t *testing.T) {
 }
 
 func Test_DoubleBothErrors_GotFirst(t *testing.T) {
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			return errors.New("double_first_error")
 		},
@@ -124,7 +124,7 @@ func Test_DoubleCancel(t *testing.T) {
 	now := time.Now()
 	var exitTime1 time.Time
 	var exitTime2 time.Time
-	err := StackFunctions(ctx,
+	err := Stack(ctx,
 		func(ctx context.Context) error {
 			<-ctx.Done()
 			exitTime1 = time.Now()
@@ -145,7 +145,7 @@ func Test_DoubleCancel_Internal(t *testing.T) {
 	now := time.Now()
 	var exitTime1 time.Time
 	var exitTime2 time.Time
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			time.Sleep(time.Millisecond * 100)
 			exitTime1 = time.Now()
@@ -172,7 +172,7 @@ func Test_TrippleCancel(t *testing.T) {
 	var exitTime1 time.Time
 	var exitTime2 time.Time
 	var exitTime3 time.Time
-	err := StackFunctions(ctx,
+	err := Stack(ctx,
 		func(ctx context.Context) error {
 			<-ctx.Done()
 			exitTime1 = time.Now()
@@ -201,7 +201,7 @@ func Test_TrippleCancel_FirstFailed(t *testing.T) {
 	var exitTime1 time.Time
 	var exitTime2 time.Time
 	var exitTime3 time.Time
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			time.Sleep(time.Millisecond * 100)
 			exitTime1 = time.Now()
@@ -230,7 +230,7 @@ func Test_TrippleCancel_SecondFailed(t *testing.T) {
 	var exitTime1 time.Time
 	var exitTime2 time.Time
 	var exitTime3 time.Time
-	err := StackFunctions(context.Background(),
+	err := Stack(context.Background(),
 		func(ctx context.Context) error {
 			<-ctx.Done()
 			exitTime1 = time.Now()

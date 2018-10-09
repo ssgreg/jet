@@ -1,4 +1,4 @@
-package jet
+package jethttp
 
 import (
 	"context"
@@ -20,7 +20,7 @@ func RunServer(ctx context.Context, s *http.Server, l net.Listener) (err error) 
 			if err == nil || err == http.ErrServerClosed {
 				err = shutdownError
 			} else {
-				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
+				fmt.Fprintf(os.Stderr, "skipped: %s\n", err.Error())
 			}
 		}
 		if err == http.ErrServerClosed {
