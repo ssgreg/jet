@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 	"sync/atomic"
+	"time"
 )
 
 // Stack allows to specify the stop/exit order for the given functions
@@ -68,5 +69,27 @@ func stack(ctx context.Context, cancel context.CancelFunc, jobs ...func(context.
 		}()
 	}
 
-	return jobs[0](externalCtx)
+	return jobs[0](&forwardContext{externalCtx, ctx})
+}
+
+// forwardContext allows to forward Value requests to original Context.
+type forwardContext struct {
+	ctx context.Context
+	fwd context.Context
+}
+
+func (c *forwardContext) Deadline() (deadline time.Time, ok bool) {
+	return c.ctx.Deadline()
+}
+
+func (c *forwardContext) Done() <-chan struct{} {
+	return c.ctx.Done()
+}
+
+func (c *forwardContext) Err() error {
+	return c.ctx.Err()
+}
+
+func (c *forwardContext) Value(key interface{}) interface{} {
+	return c.fwd.Value(key)
 }
