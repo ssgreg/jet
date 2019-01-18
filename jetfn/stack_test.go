@@ -253,3 +253,24 @@ func Test_TrippleCancel_SecondFailed(t *testing.T) {
 	require.True(t, exitTime2.Before(exitTime3))
 	require.WithinDuration(t, now.Add(time.Millisecond*100), time.Now(), time.Millisecond*20)
 }
+
+// Test_DoubleCheckContext checks that context values are accessible in
+// stacked functions.
+func Test_DoubleCheckContext(t *testing.T) {
+	type key int
+	const cKey key = 0
+	golden := 42
+	ctx := context.WithValue(context.Background(), cKey, &golden)
+
+	err := Stack(ctx,
+		func(ctx context.Context) error {
+			require.NotEmpty(t, ctx.Value(cKey))
+			return nil
+		},
+		func(ctx context.Context) error {
+			require.NotEmpty(t, ctx.Value(cKey))
+			return nil
+		},
+	)
+	require.NoError(t, err)
+}
